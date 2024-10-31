@@ -126,6 +126,7 @@ def token_required(func):
 
 - Utilize your @token_required wrapper on resources, you think the user should be logged in to use. (apply it to at least one controller)
 
+**Login and Token neededed to delete user**
 ```py
 from app.utlis.util import encode_token, token_required
 
@@ -140,4 +141,28 @@ def delete_customer(customer_id):
     db.session.delete(customer)
     db.session.commit()
     return jsonify({"message": f"User at ID {customer_id}  has been deleted "})
+```
+
+**Login and Token needed to update customer profile**
+
+```py
+@customers_bp.route("/<int:customer_id>", methods =['PUT'])
+@token_required
+def update_customer(customer_id):
+    customer = db.session.get(Customers, customer_id)
+
+    if customer == None:
+        return jsonify ({"message": "invalid id"}), 400
+    
+    try:
+        customer_data = customer_schema.load(request.json)
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    
+    for field, value in customer_data.items():
+        if value:
+            setattr(customer, field, value)
+
+    db.session.commit()
+    return customer_schema.jsonify(customer), 200
 ```

@@ -48,6 +48,7 @@ def get_customer(customer_id):
 
 
 @customers_bp.route("/<int:customer_id>", methods =['PUT'])
+@token_required
 def update_customer(customer_id):
     customer = db.session.get(Customers, customer_id)
 
